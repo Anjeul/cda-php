@@ -1,0 +1,269 @@
+/* Fond et navigation */
+body,
+.netfloux-navbar {
+  background-color: #141414;
+}
+
+.netfloux-navbar .navbar-brand,
+.netfloux-navbar .navbar-brand:focus {
+  color: #e50914;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.netfloux-navbar .navbar-brand:hover {
+  color: #d30d17;
+}
+
+.netfloux-navbar .navbar-nav .nav-link {
+  color: #c9c9c9;
+}
+
+.netfloux-navbar .navbar-nav .nav-link:hover,
+.netfloux-navbar .navbar-nav .nav-link:focus,
+.netfloux-navbar .navbar-nav .active > .nav-link {
+  color: #fff;
+}
+
+.netfloux-navbar .navbar-nav .nav-link.disabled {
+  color: #888;
+}
+
+/* Barre de recherche */
+.netfloux-search {
+  display: flex;
+  width: 100%;
+  max-width: 16rem;
+  background-color: #1e1e1e;
+  border: 1px solid #666;
+  border-radius: 8px;
+}
+
+.netfloux-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  background: transparent;
+  border: 0;
+}
+
+.netfloux-search input::placeholder {
+  color: #b0b0b0;
+}
+
+.netfloux-search button {
+  padding: 0 0.75rem;
+  color: #ddd;
+  background: transparent;
+  border: 0;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.netfloux-search button:hover {
+  color: #fff;
+  background-color: #333;
+}
+
+/* Carrousel */
+.netfloux-carousel {
+  max-width: 72rem;
+  margin: 1.25rem auto;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: #1e1e1e;
+}
+
+.netfloux-carousel .carousel-item {
+  overflow: hidden;
+}
+
+.netfloux-carousel-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(18px) brightness(0.5);
+  transform: scale(1.12);
+}
+
+.netfloux-carousel .carousel-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+.netfloux-carousel-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: min(40%, 13rem) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.75rem, 4vw, 3rem);
+  padding: 1.5rem max(2.75rem, 10%) 2.75rem;
+}
+
+.netfloux-carousel-poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  background-color: #171717;
+  border-radius: 6px;
+}
+
+.netfloux-carousel-title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.15rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  overflow-wrap: break-word;
+}
+
+/* Flèches du carrousel */
+.netfloux-carousel .carousel-control-prev,
+.netfloux-carousel .carousel-control-next {
+  z-index: 2;
+  width: 8%;
+  min-width: 44px;
+  opacity: 0.75;
+  transition: opacity 150ms ease;
+}
+
+.netfloux-carousel .carousel-control-prev-icon,
+.netfloux-carousel .carousel-control-next-icon {
+  width: 12px;
+  height: 12px;
+  background-image: none;
+  border-top: 2px solid #fff;
+  border-right: 2px solid #fff;
+}
+
+.netfloux-carousel .carousel-control-prev-icon {
+  transform: rotate(-135deg);
+}
+
+.netfloux-carousel .carousel-control-next-icon {
+  transform: rotate(45deg);
+}
+
+.netfloux-carousel .carousel-control-prev:hover,
+.netfloux-carousel .carousel-control-prev:focus-visible {
+  opacity: 1;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.45), transparent);
+}
+
+.netfloux-carousel .carousel-control-next:hover,
+.netfloux-carousel .carousel-control-next:focus-visible {
+  opacity: 1;
+  background-image: linear-gradient(to left, rgba(0, 0, 0, 0.45), transparent);
+}
+
+.netfloux-carousel .carousel-control-prev:focus-visible,
+.netfloux-carousel .carousel-control-next:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
+/* Indicateurs du carrousel */
+.netfloux-carousel .carousel-indicators .active {
+  background-color: #e50914;
+}
+
+/* Formulaire d'ajout de film */
+main.container:has(> form #title) {
+  color: #f5f5f5;
+}
+
+main.container > form:has(#title) {
+  padding: 1.5rem;
+  background-color: #1c1c1c;
+  border: 1px solid #383838;
+  border-radius: 0.75rem;
+}
+
+main.container > form:has(#title) .form-control {
+  color: #f5f5f5;
+  color-scheme: dark;
+  background-color: #262626;
+  border-color: #757575;
+}
+
+main.container > form:has(#title) .form-control::placeholder {
+  color: #aaa;
+  opacity: 1;
+}
+
+main.container > form:has(#title) .form-control:focus {
+  border-color: #ff5962;
+  box-shadow: 0 0 0 0.2rem rgb(229 9 20 / 30%);
+}
+
+main.container > form:has(#title) .btn-primary {
+  background-color: #e50914;
+  border-color: #e50914;
+}
+
+main.container > form:has(#title) .btn-primary:hover {
+  background-color: #bc0811;
+  border-color: #bc0811;
+}
+
+.netfloux-movies {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(165px, 100%), 210px));
+  gap: 1rem;
+  margin-block: 1.25rem;
+}
+
+.netfloux-movie {
+  overflow: hidden;
+}
+
+.netfloux-movie__poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background-color: #252525;
+}
+
+.netfloux-movie__placeholder {
+  display: grid;
+  place-items: center;
+  padding: 0.75rem;
+  color: #c9c9c9;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.netfloux-movie__summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  color: #c9c9c9;
+  font-size: 0.875rem;
+}
+
+.netfloux-movie__cover {
+  position: relative;
+}
+
+.netfloux-movie__children-icon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #ffffff;
+  font-size: 1rem;
+}
