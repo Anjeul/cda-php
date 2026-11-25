@@ -24,15 +24,24 @@
             Compte
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="signup.php">Connexion</a>
-            <a class="dropdown-item" href="#">Création de compte</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Déconnexion</a>
+            <?php if (!isset($_SESSION['user'])) { ?>
+
+
+
+              <a class="dropdown-item" href="signin.php">Connexion</a>
+              <a class="dropdown-item" href="signup.php">Création de compte</a>
+              <div class="dropdown-divider"></div>
+            <?php } else { ?>
+              <a class="dropdown-item" href="index.php?logout=true">Déconnexion</a>
+            <?php } ?>
           </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#">Disabled</a>
-        </li>
+
+        <?php if (isset($_SESSION['user'])) { ?>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#"><?= $_SESSION['user']['pseudo'] ?></a>
+          </li>
+        <?php } ?>
 
       </ul>
       <form class="netfloux-search" role="search">

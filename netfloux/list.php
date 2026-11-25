@@ -2,6 +2,12 @@
 require_once "templates/head.php";
 require_once "templates/header.php";
 
+if (!isset($_SESSION['user'])) {
+  header('Location: signin.php');
+  exit;
+}
+
+
 try {
   $request = $db->query('SELECT movie.*, category.category_name FROM movie LEFT JOIN category ON category.category_id = movie.id_category');
   $movies = $request->fetchAll(PDO::FETCH_ASSOC);
@@ -26,7 +32,7 @@ require_once "partials/alert.php";
           <?php if (!empty($movie['movie_picture'])) { ?>
             <img
               class="card-img-top netfloux-movie__poster"
-              src="<?= htmlspecialchars($movie['movie_picture']) ?>"
+              src="public/picture/<?= $movie['movie_picture'] ?>"
               alt="">
           <?php } else { ?>
             <div class="netfloux-movie__poster netfloux-movie__placeholder">
@@ -58,9 +64,11 @@ require_once "partials/alert.php";
             </p>
           <?php } ?>
 
-          <a href="details.php" class="btn btn-danger btn-sm mt-auto align-self-start">
+
+          <a href="details.php?id=<?= $movie['movie_id'] ?>" class="btn btn-danger btn-sm mt-auto align-self-start">
             Consulter
           </a>
+
         </div>
       </article>
     <?php } ?>

@@ -19,6 +19,36 @@ if (isset($_POST['pseudo'])) {
       $request = $db->prepare('SELECT * FROM user WHERE user_email = ? OR user_pseudo = ?');
       $request->execute([$email, $pseudo]);
       $user = $request->fetch();
+
+      if ($user) {
+        $alertError = "Un compte existe déjà avec ce pseudo ou email !";
+      } else {
+        $id = bin2hex(random_bytes(4));
+
+        $pswdHash = password_hash($password, PASSWORD_DEFAULT);
+
+        $request = $db->prepare("INSERT INTO user (
+                                                    user_id, 
+                                                    user_pseudo, 
+                                                    user_email, 
+                                                    user_pswrd)
+                                                    VALUES (?, ?, ?, ?)");
+
+
+        $request->execute([$id, $pseudo, $email, $pswdHash]);
+
+        // $alertSuccess = "Bienvenue $pseudo ! Votre compte a bien été enregistré.";
+
+
+        $_SESSION['user'] = [
+          'id' => $id,
+          'pseudo' => $pseudo,
+        ];
+
+
+        header('Location: index.php');
+        exit;
+      }
     } catch (PDOException $e) {
       $alertError = $e->getMessage();
     }

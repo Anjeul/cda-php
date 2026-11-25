@@ -1,75 +1,173 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+require_once "templates/head.php";
+require_once "templates/header.php";
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Netfloux</title>
-  <link rel="icon" href="assets/favicon.ico">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <link rel="stylesheet" href="css/style.css">
-</head>
+$isOk = false;
+const MAX_RANK = 5;
 
-<body class="text-white">
 
-  <header>
+if (!isset($_SESSION['user'])) {
+  header('Location: signin.php');
+  exit;
+}
+if (isset($_GET['id'])) {
+  $movieId = $_GET['id'];
+} else {
+  $alertError = "Le film selectionné n'a pas été trouvé";
+}
+if (isset($_POST["view"])) {
+  $view = $_POST["view"];
+  try {
+    $request = $db->prepare('UPDATE movie SET movie_is_watched = ? WHERE movie.movie_id = ?');
+    $request->execute([$view, $movieId]);
+    $alertSuccess = "Le statut a été mis à jour ";
+  } catch (PDOException $e) {
+    $alertError = $e->getMessage();
+  }
+}
 
-    <!-- NAV -->
-    <nav class="navbar navbar-expand-lg navbar-dark netfloux-navbar">
-      <a class="navbar-brand" href="index.php">NETFLOUX</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+// NOTE DU FILM
+if (isset($_POST["note"])) {
+  $note = $_POST["note"];
+  if (empty($note)) {
+    $alertError = "Merci de remplir le champs.";
+  } elseif (filter_var($_POST['note'], FILTER_VALIDATE_INT, [
+    'options' => ['min_range' => 1, 'max_range' => 5]
+  ]) === false) {
+    $alertError = "La note doit être un nombre entier entre 1 et 5";
+  } else {
+    try {
+      $request = $db->prepare('UPDATE movie SET movie_rank = ? WHERE movie.movie_id = ?');
+      $request->execute([$note, $movieId]);
+      $alertSuccess = "La note a bien été modifié";
+    } catch (PDOException $e) {
+      $alertError =  "Erreur lors de l'ajout de la note";
+    }
+  }
+}
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="index.php">Accueil <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="add.php">Ajouter</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="list.php">Liste</a>
-          </li>
-          <!-- <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Dropdown
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#">Disabled</a>
-          </li> -->
-        </ul>
-        <form class="netfloux-search" role="search">
-          <input
-            type="search"
-            name="q"
-            placeholder="Rechercher un titre…"
-            aria-label="Rechercher un titre">
-          <button type="submit" aria-label="Lancer la recherche">
-            <span aria-hidden="true">⌕</span>
-          </button>
-        </form>
-      </div>
-    </nav>
 
-  </header>
+try {
+  $request = $db->prepare('SELECT movie.*, category.category_name FROM movie LEFT JOIN category ON category.category_id = movie.id_category WHERE movie_id = ?');
+  $request->execute([
+    $movieId
+  ]);
+
+  $movieDetail = $request->fetch();
+
+  if (!$movieDetail) {
+    $isOk = false;
+    $alertError = "Le film n'a pas été trouvé";
+  } else {
+    $isOk = true;
+  }
+} catch (PDOException $e) {
+  $alertError =  "Erreur lors de la récupération du film.";
+}
+
+// SUPPRESSION DU FILM
+if ($isOk && ($_POST['delete'] ?? null) === '1') {
+
+  try {
+    $request = $db->prepare('DELETE FROM movie WHERE movie_id = ?');
+    $request->execute([$movieId]);
+
+    $picture = $movieDetail['movie_picture'];
+    $path = 'public/picture/' . $picture;
+    if ($picture && file_exists($path)) {
+      unlink($path);
+    }
+    $isOk = false;
+    $alertSuccess = "La film a bien été supprimé";
+    header("Location: list.php");
+  } catch (PDOException $e) {
+    $alertError =  "Erreur lors de la suppression du film";
+  }
+}
+
+require_once "partials/alert.php";
+
+if ($isOk) {
+?>
 
   <main class="container">
-    <h1>Bienvenue sur Netfloux !</h1>
+    <a href="list.php"
+      style="display: inline-block; padding: 6px 12px; color: #fff; border: 1px solid #e50914; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">
+      ← Retour à la liste
+    </a>
+    <?php if (!empty($movieDetail['movie_picture'])) { ?>
+      <img
+        class="card-img-top netfloux-movie__poster"
+        src="public/picture/<?= htmlspecialchars($movieDetail['movie_picture']) ?>"
+        alt=""
+        style="max-width: 240px; height: auto;">
+    <?php } else { ?>
+      <div class="netfloux-movie__poster netfloux-movie__placeholder">
+        Affiche indisponible
+      </div>
+    <?php } ?>
+
+    <h1><?= htmlspecialchars($movieDetail['movie_title']) ?></h1>
+    <p><?= htmlspecialchars($movieDetail['movie_year']) ?></p>
+    <p><?= htmlspecialchars($movieDetail['movie_time']) ?></p>
+    <p><?= htmlspecialchars($movieDetail['category_name']) ?></p>
+    <p><?= htmlspecialchars($movieDetail['movie_summary']) ?></p>
+    <p>
+      <?= htmlspecialchars($movieDetail['movie_is_watched']) ? "Vous avez vu ce film" : "Vous ne l'avez pas encore regardé !" ?>
+    </p>
+    <p>
+      <?php
+      if (!$movieDetail["movie_rank"]) {
+        echo "Le film n'a pas encore été noté";
+      } else {
+        for ($i = 1; $i <= MAX_RANK; $i++) {
+          if ($i <= $movieDetail['movie_rank']) {
+            echo '★';
+          } else {
+            echo '☆';
+          }
+        }
+      };
+      ?>
+    </p>
+
+    <!-- FORM -->
+    <form action="" method="post">
+      <div class="form-group">
+        <label for="note">Ajouter une note :</label>
+        <select id="note" name="note" class="form-control">
+          <?php for ($i = 1; $i <= MAX_RANK; $i++) { ?>
+            <option value="<?= $i ?>" <?= $i == $movieDetail['movie_rank'] ? 'selected' : '' ?>> <?= $i ?></option>
+          <?php
+          }; ?>
+        </select>
+        <button type="submit" class="btn btn-primary">Modifier la note</button>
+      </div>
+    </form>
+
+    <form action="" method="post">
+      <button type="submit" class="btn btn-secondary" name="view"
+        value="<?= $movieDetail['movie_is_watched'] ? 0 : 1 ?>">
+        <?= htmlspecialchars($movieDetail['movie_is_watched']) ? '❌ Marquer comme non vu' : "✔ Marquer comme vu" ?>
+      </button>
+    </form>
+
+    <?php if (!empty($movieDetail['movie_trailer'])) { ?>
+      <iframe src="https://www.youtube.com/embed/<?= htmlspecialchars($movieDetail['movie_trailer']) ?>" frameborder="0">
+      </iframe>
+
+    <?php } ?>
+
+
+    <!-- SUPPRESSION -->
+    <form action="" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer ce film ?');">
+      <button type="submit" name="delete" class="btn btn-danger" value="1">Supprimer</button>
+    </form>
   </main>
 
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-</body>
+<?php
+}
 
-</html>
+require_once "templates/footer.php";
+?>

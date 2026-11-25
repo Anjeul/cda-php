@@ -4,7 +4,7 @@ require_once __DIR__ . "/templates/header.php";
 ?>
 
 <main class="container-fluid px-4">
-  <h1 class="h3 my-4">Bienvenue sur Netfloux !</h1>
+  <h1 class="h3 my-4">Bienvenue sur Netfloux!</h1>
 
   <div id="netflouxCarousel" class="carousel slide netfloux-carousel" data-ride="carousel">
     <ol class="carousel-indicators">

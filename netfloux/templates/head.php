@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (isset($_GET['logout'])) {
+  $_SESSION = [];
+  session_destroy();
+}
+
 $alertError = null;
 $alertSuccess = null;
 
